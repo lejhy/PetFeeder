@@ -12,6 +12,7 @@
 #define TCP                     0
 #define UDP                     1
 
+bool ESP8266_WaitForAnswer(uint32_t tries);
 bool ESP8266_CheckConnection(void);
 bool ESP8266_AvailableAPs(void);
 bool ESP8266_ConnectToAP(char *SSID, char *Password);
