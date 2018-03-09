@@ -6,6 +6,7 @@
  * GND = GND
  * TX = P3.2
  * RX = P3.3
+ * RST = P6.1
  * GPIO15 = GND
  * EN = 3.3V */
 
