@@ -6,7 +6,8 @@
 #define AT_RST          "AT+RST\r\n"
 #define AT_GMR          "AT+GMR\r\n"
 #define AT_GSLP         "AT+GSLP\r\n"
-#define ATE             "ATE\r\n"
+#define ATE0            "ATE0\r\n"
+#define ATE1            "ATE1\r\n"
 #define AT_CWMODE       "AT+CWMODE\r\n"
 #define AT_CWJAP        "AT+CWJAP"
 #define AT_CWLAP        "AT+CWLAP\r\n"
@@ -31,14 +32,14 @@
 
 char ESP8266_Buffer[ESP8266_BUFFER_SIZE];
 
-bool ESP8266_WaitForAnswer(uint32_t Tries)
+bool ESP8266_WaitForAnswer(uint32_t timeout)
 {
     uint32_t c;
     uint32_t i = 0;
+    uint32_t time = 0;
 
-    while(Tries)
-    {
-        if(UART_Available(EUSCI_A2_BASE)){
+    while(time < timeout) {
+        if (UART_Available(EUSCI_A2_BASE)) {
             while(UART_Available(EUSCI_A2_BASE)){
                 UART_Read(EUSCI_A2_BASE, (uint8_t*)&c, 1);
 
@@ -52,21 +53,55 @@ bool ESP8266_WaitForAnswer(uint32_t Tries)
                 }
             }
 
-            ESP8266_Buffer[i++] = 0;
-            return true;
+            ESP8266_Buffer[i] = 0;
+
+            if (strstr(ESP8266_Buffer, "OK")) return true;
+            if (strstr(ESP8266_Buffer, "ERROR")) return false;
         }
-        Tries--;
-        __delay_cycles(2400);
+        __delay_cycles(24000);
+        time++;
+    }
+    return false;
+}
+
+bool ESP8266_DisableEcho()
+{
+    MSPrintf(EUSCI_A2_BASE, ATE0);
+    __delay_cycles(12000);
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
+    {
+        return false;
     }
 
-    return false;
+    if(strstr(ESP8266_Buffer, "OK") == NULL)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool ESP8266_SendATCommand(char *ATCommand)
+{
+    MSPrintf(EUSCI_A2_BASE, ATCommand);
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
+    {
+        return false;
+    }
+
+    if(strstr(ESP8266_Buffer, "OK") == NULL)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool ESP8266_CheckConnection(void)
 {
     MSPrintf(EUSCI_A2_BASE, AT);
     __delay_cycles(12000);
-    if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
     {
         return false;
     }
@@ -83,7 +118,7 @@ bool ESP8266_AvailableAPs(void)
 {
     MSPrintf(EUSCI_A2_BASE, AT_CWLAP);
     __delay_cycles(48000000);
-    if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
     {
         return false;
     }
@@ -101,7 +136,7 @@ bool ESP8266_ConnectToAP(char *SSID, char *Password)
     MSPrintf(EUSCI_A2_BASE, "%s=\"%s\",\"%s\"\r\n", AT_CWJAP, SSID, Password);
 
     __delay_cycles(12000);
-    if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
     {
         return false;
     }
@@ -131,7 +166,7 @@ bool ESP8266_EnableMultipleConnections(bool Enable)
     MSPrintf(EUSCI_A2_BASE, "%s=%c\r\n", AT_CIPMUX, c);
 
     __delay_cycles(12000000);
-    if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
     {
         return false;
     }
@@ -165,7 +200,7 @@ bool ESP8266_EstablishConnection(char ID, uint8_t type, char *address, char *por
     MSPrintf(EUSCI_A2_BASE, "%s=%c,\"%s\",\"%s\",%s\r\n", AT_CIPSTART, ID, ct, address, port);
 
     __delay_cycles(24000000);
-    if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
     {
         return false;
     }
@@ -186,7 +221,7 @@ bool ESP8266_SendData(char ID, char *Data, uint32_t DataSize)
     MSPrintf(EUSCI_A2_BASE, "%s=%c,%s\r\n", AT_CIPSEND, ID, size);
 
     __delay_cycles(24000000);
-    if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
     {
         return false;
     }
@@ -199,7 +234,7 @@ bool ESP8266_SendData(char ID, char *Data, uint32_t DataSize)
     MSPrintf(EUSCI_A2_BASE, Data);
 
     __delay_cycles(48000000);
-    if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+    if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
     {
         return false;
     }
@@ -220,7 +255,7 @@ void ESP8266_Terminal(void)
         MSPrintf(EUSCI_A2_BASE, ESP8266_Buffer);
 
         __delay_cycles(48000000);
-        if(!ESP8266_WaitForAnswer(ESP8266_RECEIVE_TRIES))
+        if(!ESP8266_WaitForAnswer(ESP8266_RESPONSE_TIMEOUT))
         {
             MSPrintf(EUSCI_A0_BASE, "ESP8266 receive timeout error\r\n");
         }

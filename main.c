@@ -10,7 +10,9 @@
  * GPIO15 = GND
  * EN = 3.3V */
 
-
+/*AP Data*/
+char SSID[] = "Redmi";
+char SSID_PASSWORD[] = "lejhanec";
 /*We are connecting to api.themoviedb.org, ESP8266 can resolve DNS, pretty cool huh!*/
 char HTTP_WebPage[] = "api.themoviedb.org";
 /*HTTP is TCP port 80*/
@@ -91,6 +93,16 @@ void main(void)
     }
 
     MSPrintf(EUSCI_A0_BASE, "Nice! We are connected to the MSP432\r\n\r\n");
+
+    MSPrintf(EUSCI_A0_BASE, "Disable echo\r\n\r\n");
+    if (!ESP8266_DisableEcho())
+    {
+        MSPrintf(EUSCI_A0_BASE, "failed\r\n\r\n");
+    } else {
+        MSPrintf(EUSCI_A0_BASE, "success\r\n\r\n");
+    }
+
+
     MSPrintf(EUSCI_A0_BASE, "Checking available Access Points\r\n\r\n");
 
     /*Check available Access Points*/
@@ -104,12 +116,15 @@ void main(void)
     /*Print received Access Points Data to console*/
     MSPrintf(EUSCI_A0_BASE, "Got it! Here are the available Access Points: %s\r\n\r\n", ESP8266_Data);
 
-    /*Connect to Access Point if necessary here*/
-    //if(!ESP8266_ConnectToAP(YOUR_SSID, YOUR_SSID_PASSWORD))
-    //{
-        /*Trap MSP432 we are not connected*/
-       //while(1);
-    //}
+    /*Connect to Access Point here*/
+    MSPrintf(EUSCI_A0_BASE, "Connecting to AP %s\r\n\r\n", SSID);
+    if(!ESP8266_ConnectToAP(SSID, SSID_PASSWORD))
+    {
+        MSPrintf(EUSCI_A0_BASE, "Failed to connect to SSID '%s' with SSID_PASSWORD '%s': %s\r\n\r\n", SSID, SSID_PASSWORD, ESP8266_Data);
+       /* Trap MSP432 we are not connected*/
+       while(1);
+    }
+    MSPrintf(EUSCI_A0_BASE, "Hooray! We are connected to AP %s\r\n\r\n", SSID);
 
 
     /*Enable multiple connections, up to 4 according to the internet*/
