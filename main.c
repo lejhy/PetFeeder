@@ -6,8 +6,8 @@
  * GND = GND
  * TX = P3.2
  * RX = P3.3
- * RST = P6.1
- * CH_PD = 3.3V */
+ * GPIO15 = GND
+ * EN = 3.3V */
 
 
 /*We are connecting to api.themoviedb.org, ESP8266 can resolve DNS, pretty cool huh!*/
