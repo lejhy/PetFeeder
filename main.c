@@ -287,7 +287,7 @@ void sendCricketStatus() {
     char secondNumber[10];
     int i = 0;
     int num = cricketsLeft;
-    while (num > 0) {
+    while (num > 0 || i == 0) {
         int digit = num%10;
         firstNumber[i] = '0' + digit;
         num = num/10;
@@ -296,7 +296,7 @@ void sendCricketStatus() {
     firstNumber[i] = '\0';
     i = 0;
     num = maximumCrickets;
-    while (num > 0) {
+    while (num > 0 || i == 0) {
         int digit = num%10;
         secondNumber[i] = '0' + digit;
         num = num/10;
