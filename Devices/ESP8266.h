@@ -13,6 +13,7 @@
 #define UDP                     1
 
 bool ESP8266_WaitForAnswer(uint32_t tries);
+bool ESP8266_DisableEcho();
 bool ESP8266_SendATCommand(char *ATCommand);
 bool ESP8266_CheckConnection(void);
 bool ESP8266_AvailableAPs(void);
