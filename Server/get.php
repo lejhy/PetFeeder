@@ -13,10 +13,10 @@ if (isset($_GET['device_id']) && isset($_GET['last_timestamp']) && isset($_GET['
     $timestamp = $_GET['last_timestamp'];
     $from_device = $_GET['from_device'];
     if ($timestamp === 'true') {
-        $sql = "SELECT command_timestamp, command FROM petfeeder_commands WHERE
+        $sql = "SELECT UNIX_TIMESTAMP(command_timestamp) AS command_timestamp, command FROM petfeeder_commands WHERE
         device_id = $device_id AND from_device = $from_device ORDER BY command_timestamp DESC LIMIT 1;";
     } else {
-        $sql = "SELECT command_timestamp, command FROM petfeeder_commands WHERE
+        $sql = "SELECT UNIX_TIMESTAMP(command_timestamp), command FROM petfeeder_commands WHERE
         device_id = $device_id AND from_device = $from_device AND command_timestamp >= FROM_UNIXTIME($timestamp);";
     }
     $result = $mysql->query($sql);
