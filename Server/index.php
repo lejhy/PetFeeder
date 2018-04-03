@@ -21,7 +21,24 @@
 <body>
 <header>Pet Feeder</header>
 <main>
-    <div id="status"></div>
+    <div id="status">
+        <?php
+
+            require "mysql.php";
+
+            $sql = "SELECT UNIX_TIMESTAMP(command_timestamp) AS command_timestamp, command FROM petfeeder_commands WHERE
+            device_id = 1 AND from_device = true ORDER BY command_timestamp DESC LIMIT 1;";
+            $result = $mysql->query($sql);
+            if ($result->num_rows > 0) {
+                $row = mysqli_fetch_assoc($result);
+                $command = json_decode($row['command']);
+                echo $command->current . "/" . $command->maximum;
+            } else {
+                echo "0/0";
+            }
+
+        ?>
+    </div>
     <div id="status-description">crickets left</div>
     <div id="controls">
         <div id="feed">FEED</div>
@@ -36,18 +53,3 @@
 <script src="Main.js"></script>
 </body>
 </html>
-
-<?php
-/**
- * Created by IntelliJ IDEA.
- * User: flejh
- * Date: 22/03/2018
- * Time: 15:21
- */
-
-require "mysql.php";
-
-
-$sql = "SELECT * FROM petfeeder_commands";
-$result = $mysql->query($sql);
-echo var_dump($result);
