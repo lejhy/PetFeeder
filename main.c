@@ -82,6 +82,10 @@ void main(void)
 	UART_Init(EUSCI_A0_BASE, UART0Config);
 	UART_Init(EUSCI_A2_BASE, UART2Config);
     GPIO_Init(GPIO_PORT_P6, GPIO_PIN1);
+    GPIO_Init(GPIO_PORT_P4, GPIO_PIN0); // Motor right
+    GPIO_Low(GPIO_PORT_P4, GPIO_PIN0);
+    GPIO_Init(GPIO_PORT_P4, GPIO_PIN1); // Motor left
+    GPIO_Low(GPIO_PORT_P4, GPIO_PIN1);
 
     MAP_Interrupt_enableMaster();
 
@@ -153,12 +157,21 @@ void main(void)
                     if (strcmp(command, "feed") == 0) {
                         if (cricketsLeft > 0) {
                             MSPrintf(EUSCI_A0_BASE, "Feeding\r\n\r\n");
+                            GPIO_High(GPIO_PORT_P4, GPIO_PIN0);
+                            __delay_cycles(320000000); // 10 sec
+                            GPIO_Low(GPIO_PORT_P4, GPIO_PIN0);
                             cricketsLeft--;
                         }
-                    } else if (strcmp(command, "left") == 0) {
-                        MSPrintf(EUSCI_A0_BASE, "Going left\r\n\r\n");
                     } else if (strcmp(command, "right") == 0) {
                         MSPrintf(EUSCI_A0_BASE, "Going right\r\n\r\n");
+                        GPIO_High(GPIO_PORT_P4, GPIO_PIN0);
+                        __delay_cycles(48000000); // 2 sec
+                        GPIO_Low(GPIO_PORT_P4, GPIO_PIN0);
+                    } else if (strcmp(command, "left") == 0) {
+                        MSPrintf(EUSCI_A0_BASE, "Going left\r\n\r\n");
+                        GPIO_High(GPIO_PORT_P4, GPIO_PIN1);
+                        __delay_cycles(4800000); // 2 sec
+                        GPIO_Low(GPIO_PORT_P4, GPIO_PIN1);
                     }
                     // Don't forget to free the heap
                     free(command);
