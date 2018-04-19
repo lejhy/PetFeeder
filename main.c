@@ -60,9 +60,9 @@ char HTTP_WebPage[] = "petfeeder.chorvatskonaplazi.cz";
 /*HTTP is TCP port 80*/
 char Port[] = "80";
 /*Total number of compartments */
-int maximumCrickets = 6;
+int maximumCrickets = 4;
 /*Number of compartments left */
-int cricketsLeft = 6;
+int cricketsLeft = 4;
 /*Timestamp of the last command received*/
 long lastCommandTimestamp = 0;
 
